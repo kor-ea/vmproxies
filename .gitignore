@@ -3,3 +3,4 @@
 tinyproxy.log
 tinyproxy.pid
 configs/*
+vpn_us/*

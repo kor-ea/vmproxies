@@ -40,8 +40,8 @@ do {
 } while ($running);
 	curl_multi_close ($mc);
 echo $alive_count." of ".$running_count." alive.".PHP_EOL;
+$remove = exec("docker ps -a | grep 'Exited' | awk '{print $1}' | xargs --no-run-if-empty docker rm");
 if($alive_count < 20 ){
-	$remove = exec("docker ps -a | grep 'Exited' | awk '{print $1}' | xargs --no-run-if-empty docker rm");
 	$newconfigs = array_filter(scandir($dir.'configs/'), function($item){
 		return !is_dir($item);
 	});

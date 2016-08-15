@@ -10,11 +10,11 @@ for ($thread_no = 0; $thread_no<count ($proxies); $thread_no++)
 {
 	list($name, $proxy) = explode(" - ", $proxies[$thread_no]);
 	$c [$thread_no] = curl_init ();
-	curl_setopt ($c [$thread_no], CURLOPT_URL, "http://ifconfig.ca");
+	curl_setopt ($c [$thread_no], CURLOPT_URL, "http://speedtest.ftp.otenet.gr/files/test1Mb.db");
 	curl_setopt ($c [$thread_no], CURLOPT_HEADER, 0);
 	curl_setopt ($c [$thread_no], CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt ($c [$thread_no], CURLOPT_CONNECTTIMEOUT, 10);
-	curl_setopt ($c [$thread_no], CURLOPT_TIMEOUT, 20);
+	curl_setopt ($c [$thread_no], CURLOPT_CONNECTTIMEOUT, 3);
+	curl_setopt ($c [$thread_no], CURLOPT_TIMEOUT, 10);
 	curl_setopt ($c [$thread_no], CURLOPT_PROXY, trim ($proxy));
 	curl_setopt ($c [$thread_no], CURLOPT_PROXYTYPE, 0);
 	curl_multi_add_handle ($mc, $c [$thread_no]);
@@ -26,8 +26,10 @@ do {
 		if ($execrun != CURLM_OK) break;
 	while ($done = curl_multi_info_read ($mc)){
 		$content = curl_multi_getcontent($done['handle']);
+		$curlinfo = curl_getinfo($done['handle'],CURLINFO_SIZE_DOWNLOAD);
 		list($name, $proxy) = explode(" - ", trim ($proxies [array_search ($done['handle'], $c)]));
-		if ($content && strpos($content,"500") == 0) {
+		//var_dump($curlinfo);
+		if ($content && $curlinfo > 1000000 && strpos($content,"500") == 0) {
 			echo $name.PHP_EOL;
 			file_put_contents($file, $proxy.PHP_EOL, FILE_APPEND);
 			$alive_count++;
@@ -45,7 +47,7 @@ if($alive_count < 20 ){
 	$newconfigs = array_filter(scandir($dir.'configs/'), function($item){
 		return !is_dir($item);
 	});
-	for($i =1; $i <=20; $i++){
+	for($i =1; $i <=50; $i++){
 		$config = $newconfigs[array_rand($newconfigs)];
 		$result = exec('docker run --name '.$config.' -d --device=/dev/net/tun:/dev/net/tun --cap-add=NET_ADMIN -v='.$dir.':/etc/openvpn vm ./configs/'.$config);
 		echo 'starting '.$result." - ".$config.PHP_EOL;

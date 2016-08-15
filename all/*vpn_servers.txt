@@ -1,0 +1,4 @@
+
+auth-user-pass vpnbook.auth
+
+auth-user-pass vpnbook.auth

@@ -38,9 +38,11 @@ $parsed = 0;
 while (!feof($fhandle))
 {
         $single = fgetcsv($fhandle, 0, ',');
-        if($count > 1 && !empty($single[14]) && ($single[6] == 'US' || $single[6] == 'CA'))
-        {
-                $vpn_file = dirname(__FILE__).'/vpn_us/'.$single[0].'.txt';
+        if($count > 1 && !empty($single[14])// && $single[2]>500000
+			// && $single[3]<10) 
+			&& ($single[6] == 'US' || $single[6] == 'CA')
+				){
+                $vpn_file = dirname(__FILE__).'/vpn_us/'.$single[0].'.'.$single[6].'.'.$single[2].'.'.$single[3];
                 touch($vpn_file);
                 $row = base64_decode($single[14]);
                 file_put_contents($vpn_file, $row);

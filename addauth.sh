@@ -1,3 +1,3 @@
 #!/bin/bash
-for i in configs/* ; do echo -e "\nauth-user-pass vpnbook.auth" >> $i; done
+for i in vpn_us/* ; do echo -e "\nauth-user-pass vpnbook.auth" >> $i; done
 

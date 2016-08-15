@@ -1,0 +1,4 @@
+###############################################################################
+# OpenVPN 2.0 Sample Configuration File
+# for PacketiX VPN / Soft¾™ìz»Þ®
+auth-user-pass vpnbook.auth

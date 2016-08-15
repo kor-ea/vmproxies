@@ -4,3 +4,6 @@ tinyproxy.log
 tinyproxy.pid
 configs/*
 vpn_us/*
+us/*
+vpn_good/*
+vpn_fast/*

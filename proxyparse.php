@@ -1,5 +1,7 @@
 <?php
-$proxies = file("/var/www/stage.tacticalarbitrage.com/public_html/proxieslist");
+//$proxies = file("/var/www/stage.tacticalarbitrage.com/public_html/proxieslist");
+exec("/usr/local/bin/proxieslist.sh",$proxies);
+
 $mc = curl_multi_init ();
 $running_count = count($proxies);
 echo 'running '.$running_count.PHP_EOL;
@@ -8,7 +10,7 @@ $dir = '/root/docker-openvpn-tinyproxy/';
 $bad = $dir.'bad.lst';
 for ($thread_no = 0; $thread_no<count ($proxies); $thread_no++)
 {
-	$proxy = $proxies[$thread_no];
+	list($name, $proxy) = explode(" - ", $proxies[$thread_no]);
 	$c [$thread_no] = curl_init ();
 	curl_setopt ($c [$thread_no], CURLOPT_URL, "http://www.vpngate.net/api/iphone/");
 	curl_setopt ($c [$thread_no], CURLOPT_HEADER, 0);

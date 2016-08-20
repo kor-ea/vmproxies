@@ -6,7 +6,7 @@ $running_count = count($proxies);
 echo 'running '.$running_count.PHP_EOL;
 $alive_count = 0;
 $us_count = 0;
-$dir = '/root/docker-openvpn-tinyproxy/';
+$dir = '/root/vmproxies/';
 $bad = $dir.'bad.lst';
 $memcache = new Memcache;
 $memcache->connect('localhost', 11211) or die ("Could not connect");
@@ -48,9 +48,9 @@ do {
 		}else{
 			echo $proxies [array_search ($done['handle'], $c)];
 			echo ' Got '.$curlinfo.' bytes. Killing '.exec('docker kill '.preg_replace('/\//','',$name)).PHP_EOL;
-			if ($curlinfo < 100000) {
-//				file_put_contents($bad,$name.PHP_EOL, FILE_APPEND);
-//				unlink($dir.'configs'.$name);
+			if ($curlinfo < 100) {
+				file_put_contents($bad,$name.PHP_EOL, FILE_APPEND);
+				unlink($dir.'configs'.$name);
 			}
 		}
 		curl_multi_remove_handle ($mc, $done ['handle']);
@@ -61,11 +61,11 @@ $memcache->set('us',$uslist);
 	curl_multi_close ($mc);
 echo $alive_count." ALL of ".$running_count."  alive.".PHP_EOL;
 echo $us_count." US of ".$running_count."  alive.".PHP_EOL;
-if($alive_count < 20 || $us_count < 10){
+if($alive_count < 50 ){
 	$newconfigs = array_filter(scandir($dir.'configs/'), function($item){
 		return !is_dir($item);
 	});
-	for($i =1; $i <=50; $i++){
+	for($i =1; $i <=200; $i++){
 		$config = $newconfigs[array_rand($newconfigs)];
 		$result = exec('docker run --name '.$config.' -d --device=/dev/net/tun:/dev/net/tun --cap-add=NET_ADMIN -v='.$dir.':/etc/openvpn vm ./configs/'.$config);
 		echo 'starting '.$result." - ".$config.PHP_EOL;
@@ -74,8 +74,8 @@ if($alive_count < 20 || $us_count < 10){
 }
 echo 'Cleaning up...'.PHP_EOL;
 //$remove = exec("docker ps -a |grep 'Exited' | grep -Eo 'vpn[0-9].*?' | xargs --no-run-if-empty rm ".$dir."configs/");
-$remove = exec("docker ps -a | grep 'Exited' | grep -Eo 'vpn[0-9].*?' |xargs -l bash -c 'echo ".$dir."configs/$0' |xargs rm");
-$remove = exec("docker ps -a | grep 'Exited' | grep -Eo 'vpn[0-9].*?' |xargs -l bash -c 'echo $0 >>".$bad."'");
+$remove = exec("docker ps -a | grep 'Exited' | grep -Eo 'vpn[0-9].*?' |xargs -l bash -c 'echo ".$dir."configs/$0' |xargs rm -v");
+//$remove = exec("docker ps -a | grep 'Exited' | grep -Eo 'vpn[0-9].*?' |xargs -l bash -c 'echo $0 >>".$bad."'");
 $remove = exec("docker ps -a | grep 'Exited' | awk '{print $1}' | xargs --no-run-if-empty docker rm");
 
 

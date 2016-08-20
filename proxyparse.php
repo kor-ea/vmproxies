@@ -1,15 +1,18 @@
 <?php
 //$proxies = file("/var/www/stage.tacticalarbitrage.com/public_html/proxieslist");
 exec("/usr/local/bin/proxieslist.sh",$proxies);
-
+//$memcache = new Memcache;
+//$memcache->connect('localhost', 11211) or die ("Could not connect");
+//$proxies = $memcache->get('all');
 $mc = curl_multi_init ();
 $running_count = count($proxies);
 echo 'running '.$running_count.PHP_EOL;
 $alive_count = 0;
-$dir = '/root/docker-openvpn-tinyproxy/';
+$dir = '/root/vmproxies/';
 $bad = $dir.'bad.lst';
 for ($thread_no = 0; $thread_no<count ($proxies); $thread_no++)
 {
+//	$proxy = $proxies[array_keys($proxies)[$thread_no]];
 	list($name, $proxy) = explode(" - ", $proxies[$thread_no]);
 	$c [$thread_no] = curl_init ();
 	curl_setopt ($c [$thread_no], CURLOPT_URL, "http://www.vpngate.net/api/iphone/");
@@ -27,7 +30,7 @@ do {
 		if ($execrun != CURLM_OK) break;
 	while ($done = curl_multi_info_read ($mc)){
 		$content = curl_multi_getcontent($done['handle']);
-		echo $proxies [array_search($done['handle'],$c)].PHP_EOL;
+		echo $proxies[array_search($done['handle'],$c)].PHP_EOL;
 		file_put_contents('proxies.csv',$content,FILE_APPEND);
 		curl_multi_remove_handle ($mc, $done ['handle']);
 		}
@@ -58,7 +61,7 @@ while (!feof($fhandle))
         }
         $count++;
 }
-echo $parsed." proxies parsed\r\n";
+echo $parsed." proxies parsed out of ".$count." lines\r\n";
 $newconfigs = array_filter(scandir($dir.'vpn_fast/'), function($item){
                 return !is_dir($item);
         });

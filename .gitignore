@@ -2,6 +2,7 @@
 *.swp
 tinyproxy.log
 tinyproxy.pid
+proxies.csv
 configs/*
 vpn_us/*
 us/*
